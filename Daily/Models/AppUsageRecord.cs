@@ -20,6 +20,9 @@ public partial class AppUsageRecord : ObservableObject
     [ObservableProperty]
     private DateTime _lastActiveTime;
 
+    [ObservableProperty]
+    private string _category = string.Empty;
+
     public string FormattedTime =>
         TotalUsageTime.TotalHours >= 1
             ? $"{(int)TotalUsageTime.TotalHours}h {TotalUsageTime.Minutes}m {TotalUsageTime.Seconds}s"

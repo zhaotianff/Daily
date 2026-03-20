@@ -18,8 +18,24 @@ public sealed class GlobalHookService : IDisposable
     private long _mouseClickCount;
     private long _keyboardPressCount;
 
-    public long MouseClickCount => _mouseClickCount;
-    public long KeyboardPressCount => _keyboardPressCount;
+    /// <summary>
+    /// Offset added to the raw hook counts, used to restore values from a previous session.
+    /// </summary>
+    private long _mouseClickOffset;
+    private long _keyboardPressOffset;
+
+    public long MouseClickCount => _mouseClickCount + _mouseClickOffset;
+    public long KeyboardPressCount => _keyboardPressCount + _keyboardPressOffset;
+
+    /// <summary>
+    /// Sets initial offset values so that counts resume from where a previous session left off.
+    /// Must be called before <see cref="Install"/>.
+    /// </summary>
+    public void SetInitialCounts(long mouseClicks, long keyboardPresses)
+    {
+        _mouseClickOffset = mouseClicks;
+        _keyboardPressOffset = keyboardPresses;
+    }
 
     private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
 

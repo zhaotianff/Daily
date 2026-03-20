@@ -1,4 +1,7 @@
+using System;
+using System.Drawing;
 using System.Windows;
+using System.Windows.Forms;
 using Daily.ViewModels;
 using Daily.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,8 +16,10 @@ namespace Daily;
 public partial class MainWindow : FluentWindow
 {
     private readonly MainViewModel _mainViewModel;
+    private NotifyIcon? _notifyIcon;
+    private bool _isExiting;
 
-    public MainWindow(MainViewModel mainViewModel, DashboardViewModel dashboardViewModel)
+    public MainWindow(MainViewModel mainViewModel, DashboardViewModel dashboardViewModel, HistoryViewModel historyViewModel)
     {
         _mainViewModel = mainViewModel;
 
@@ -25,24 +30,89 @@ public partial class MainWindow : FluentWindow
         ApplicationThemeManager.Apply(ApplicationTheme.Dark, WindowBackdropType.Mica);
 
         // Set page service so NavigationView can create pages with dependencies
-        RootNavigation.SetServiceProvider(BuildServiceProvider(dashboardViewModel));
+        RootNavigation.SetServiceProvider(BuildServiceProvider(dashboardViewModel, historyViewModel));
 
         // Navigate to dashboard on startup
         Loaded += OnLoaded;
+
+        // Set up notify icon
+        InitializeNotifyIcon();
     }
 
-    private static IServiceProvider BuildServiceProvider(DashboardViewModel dashboardViewModel)
+    private static IServiceProvider BuildServiceProvider(DashboardViewModel dashboardViewModel, HistoryViewModel historyViewModel)
     {
         var services = new ServiceCollection();
         services.AddSingleton(dashboardViewModel);
+        services.AddSingleton(historyViewModel);
         services.AddTransient<DashboardPage>();
         services.AddTransient<ChartsPage>();
+        services.AddTransient<HistoryPage>();
         return services.BuildServiceProvider();
+    }
+
+    private void InitializeNotifyIcon()
+    {
+        // Use a built-in system icon as fallback since no custom icon resource is embedded
+        var icon = SystemIcons.Application;
+
+        var contextMenu = new ContextMenuStrip();
+
+        var showItem = new ToolStripMenuItem("Show / Hide");
+        showItem.Click += (_, _) => ToggleWindowVisibility();
+        contextMenu.Items.Add(showItem);
+
+        contextMenu.Items.Add(new ToolStripSeparator());
+
+        var exitItem = new ToolStripMenuItem("Exit");
+        exitItem.Click += (_, _) => ExitApplication();
+        contextMenu.Items.Add(exitItem);
+
+        _notifyIcon = new NotifyIcon
+        {
+            Icon = icon,
+            Text = "Daily – Software Usage Statistics",
+            Visible = true,
+            ContextMenuStrip = contextMenu,
+        };
+
+        _notifyIcon.DoubleClick += (_, _) => ToggleWindowVisibility();
+    }
+
+    private void ToggleWindowVisibility()
+    {
+        if (IsVisible && WindowState != WindowState.Minimized)
+        {
+            Hide();
+        }
+        else
+        {
+            Show();
+            WindowState = WindowState.Normal;
+            Activate();
+        }
+    }
+
+    private void ExitApplication()
+    {
+        _isExiting = true;
+        _notifyIcon?.Dispose();
+        _notifyIcon = null;
+        System.Windows.Application.Current.Shutdown();
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         RootNavigation.Navigate(typeof(DashboardPage));
+    }
+
+    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+        if (!_isExiting)
+        {
+            // Hide to tray instead of closing
+            e.Cancel = true;
+            Hide();
+        }
     }
 
     private void ThemeToggleButton_Click(object sender, RoutedEventArgs e)
