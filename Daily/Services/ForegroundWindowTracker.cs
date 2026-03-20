@@ -150,7 +150,17 @@ public sealed class ForegroundWindowTracker : IDisposable
         {
             IntPtr hWnd = GetForegroundWindow();
             if (hWnd == IntPtr.Zero)
+            {
+                // No foreground window (e.g. lock screen, desktop with no window focused)
+                if (_lastProcessName.Length > 0)
+                {
+                    _lastProcessName = string.Empty;
+                    _lastAppName = string.Empty;
+                    _lastExecPath = string.Empty;
+                    AppChanged?.Invoke(string.Empty, string.Empty, string.Empty);
+                }
                 return;
+            }
 
             GetWindowThreadProcessId(hWnd, out uint pid);
             if (pid == 0)
@@ -181,6 +191,14 @@ public sealed class ForegroundWindowTracker : IDisposable
             if (SystemProcesses.Contains(processName) ||
                 string.Equals(processName, SelfProcessName, StringComparison.OrdinalIgnoreCase))
             {
+                // Signal idle so callers stop counting time for the previously active app
+                if (_lastProcessName.Length > 0)
+                {
+                    _lastProcessName = string.Empty;
+                    _lastAppName = string.Empty;
+                    _lastExecPath = string.Empty;
+                    AppChanged?.Invoke(string.Empty, string.Empty, string.Empty);
+                }
                 return;
             }
 

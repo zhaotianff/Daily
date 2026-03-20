@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Globalization;
+using System.Windows;
 using Daily.Services;
 using Daily.ViewModels;
 using Daily.Views;
@@ -16,6 +18,16 @@ public partial class App : WpfApplication
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        // Override the default English strings with Chinese if the system UI language is Chinese
+        if (CultureInfo.CurrentUICulture.TwoLetterISOLanguageName.Equals("zh", StringComparison.OrdinalIgnoreCase))
+        {
+            var zhDict = new ResourceDictionary
+            {
+                Source = new Uri("pack://application:,,,/Resources/Strings.zh.xaml")
+            };
+            Resources.MergedDictionaries.Add(zhDict);
+        }
 
         _statisticsService = new StatisticsService(Dispatcher);
         var dashboardVm = new DashboardViewModel(_statisticsService);

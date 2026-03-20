@@ -19,7 +19,7 @@
         <!-- Header -->
         <TextBlock
             Grid.Row="0"
-            Text="Usage History"
+            Text="{DynamicResource History_Title}"
             FontSize="28"
             FontWeight="SemiBold"
             Margin="0,0,0,16" />
@@ -27,11 +27,10 @@
         <!-- Day selector -->
         <ui:Card Grid.Row="1" Padding="16" Margin="0,0,0,16">
             <StackPanel>
-                <TextBlock Text="Select Date" FontSize="13" Opacity="0.7" Margin="0,0,0,6" />
+                <TextBlock Text="{DynamicResource History_SelectDate}" FontSize="13" Opacity="0.7" Margin="0,0,0,6" />
                 <ComboBox
                     ItemsSource="{Binding AvailableDays}"
                     SelectedItem="{Binding SelectedDay, Mode=TwoWay}"
-                    DisplayMemberPath="Date"
                     MinWidth="200"
                     HorizontalAlignment="Left">
                     <ComboBox.ItemTemplate>
@@ -52,7 +51,7 @@
         <ui:Card Grid.Row="2" Padding="0">
             <StackPanel>
                 <TextBlock
-                    Text="Application Usage"
+                    Text="{DynamicResource History_AppUsage}"
                     FontSize="18"
                     FontWeight="SemiBold"
                     Margin="20,16,20,12" />
@@ -71,24 +70,24 @@
                     RowHeight="40">
                     <DataGrid.Columns>
                         <DataGridTextColumn
-                            Header="Application"
+                            Header="{DynamicResource Col_Application}"
                             Binding="{Binding AppName}"
                             Width="*"
                             MinWidth="150" />
                         <DataGridTextColumn
-                            Header="Process"
+                            Header="{DynamicResource Col_Process}"
                             Binding="{Binding ProcessName}"
                             Width="130" />
                         <DataGridTextColumn
-                            Header="Category"
+                            Header="{DynamicResource Col_Category}"
                             Binding="{Binding Category}"
                             Width="110" />
                         <DataGridTextColumn
-                            Header="Total Time"
+                            Header="{DynamicResource Col_TotalTime}"
                             Binding="{Binding FormattedTime}"
                             Width="110" />
                         <DataGridTextColumn
-                            Header="Last Active"
+                            Header="{DynamicResource Col_LastActive}"
                             Binding="{Binding LastActiveTime, StringFormat={}{0:HH:mm:ss}}"
                             Width="100" />
                     </DataGrid.Columns>

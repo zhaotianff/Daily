@@ -1,0 +1,49 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Window / Title Bar -->
+    <sys:String x:Key="AppTitle">Daily - Software Usage Statistics</sys:String>
+    <sys:String x:Key="TitleBar">Daily</sys:String>
+    <sys:String x:Key="ThemeToggle_Tooltip">Toggle Dark/Light Mode</sys:String>
+
+    <!-- Navigation -->
+    <sys:String x:Key="Nav_Dashboard">Dashboard</sys:String>
+    <sys:String x:Key="Nav_Charts">Charts</sys:String>
+    <sys:String x:Key="Nav_History">History</sys:String>
+
+    <!-- Notify icon / tray -->
+    <sys:String x:Key="Menu_ShowHide">Show / Hide</sys:String>
+    <sys:String x:Key="Menu_Exit">Exit</sys:String>
+    <sys:String x:Key="NotifyIcon_Text">Daily – Software Usage Statistics</sys:String>
+
+    <!-- Dashboard page -->
+    <sys:String x:Key="Dashboard_Title">Today's Statistics</sys:String>
+    <sys:String x:Key="Dashboard_MouseClicks">Mouse Clicks</sys:String>
+    <sys:String x:Key="Dashboard_KeyPresses">Key Presses</sys:String>
+    <sys:String x:Key="Dashboard_AppsTracked">Apps Tracked</sys:String>
+    <sys:String x:Key="Dashboard_AppUsage">Application Usage</sys:String>
+
+    <!-- History page -->
+    <sys:String x:Key="History_Title">Usage History</sys:String>
+    <sys:String x:Key="History_SelectDate">Select Date</sys:String>
+    <sys:String x:Key="History_SelectDayLabel">Select a day to view details</sys:String>
+    <sys:String x:Key="History_AppUsage">Application Usage</sys:String>
+    <sys:String x:Key="History_LabelFormat">{0:yyyy-MM-dd}  ·  {1} apps  ·  {2:N0} clicks  ·  {3:N0} key presses</sys:String>
+
+    <!-- Charts page -->
+    <sys:String x:Key="Charts_Title">Usage Charts</sys:String>
+    <sys:String x:Key="Charts_PieTitle">Usage Distribution (Pie)</sys:String>
+    <sys:String x:Key="Charts_BarTitle">Usage by Application (Bar)</sys:String>
+    <sys:String x:Key="Chart_UsageSeconds">Usage (seconds)</sys:String>
+    <sys:String x:Key="Chart_SecondsAxis">Seconds</sys:String>
+
+    <!-- Shared column headers -->
+    <sys:String x:Key="Col_Application">Application</sys:String>
+    <sys:String x:Key="Col_Process">Process</sys:String>
+    <sys:String x:Key="Col_Category">Category</sys:String>
+    <sys:String x:Key="Col_TotalTime">Total Time</sys:String>
+    <sys:String x:Key="Col_LastActive">Last Active</sys:String>
+
+</ResourceDictionary>
