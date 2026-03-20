@@ -9,7 +9,6 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <AssemblyName>Daily</AssemblyName>
     <RootNamespace>Daily</RootNamespace>
-    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
