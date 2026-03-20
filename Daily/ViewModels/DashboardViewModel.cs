@@ -85,7 +85,7 @@ public partial class DashboardViewModel : ObservableObject
 
         PieSeries = top.Select((a, i) => (ISeries)new PieSeries<double>
         {
-            Name = a.AppName.Length > MaxPieChartLabelLength ? a.AppName[..MaxPieChartLabelLength] : a.AppName,
+            Name = a.AppName.Length > MaxPieChartLabelLength ? a.AppName[..MaxPieChartLabelLength] + "…" : a.AppName,
             Values = new[] { Math.Round(a.TotalUsageTime.TotalSeconds, 1) },
             Fill = new SolidColorPaint(palette[i % palette.Length]),
             DataLabelsSize = 12,
@@ -93,41 +93,57 @@ public partial class DashboardViewModel : ObservableObject
             DataLabelsPosition = LiveChartsCore.Measure.PolarLabelsPosition.Outer,
         }).ToArray();
 
-        // Bar chart
+        // Bar chart (horizontal rows for better readability)
         var values = top.Select(a => Math.Round(a.TotalUsageTime.TotalSeconds, 1)).ToArray();
-        var labels = top.Select(a => a.AppName.Length > MaxBarChartLabelLength ? a.AppName[..MaxBarChartLabelLength] : a.AppName).ToArray();
+        var labels = top.Select(a => a.AppName.Length > MaxBarChartLabelLength ? a.AppName[..MaxBarChartLabelLength] + "…" : a.AppName).ToArray();
 
         BarSeries =
         [
-            new ColumnSeries<double>
+            new RowSeries<double>
             {
-                Name = L.Get("Chart_UsageSeconds", "Usage (seconds)"),
+                Name = L.Get("Chart_TotalTime", "Total Time"),
                 Values = values,
                 Fill = new SolidColorPaint(new SKColor(79, 141, 249)),
                 DataLabelsSize = 11,
                 DataLabelsPaint = new SolidColorPaint(SKColors.White),
-                DataLabelsPosition = LiveChartsCore.Measure.DataLabelsPosition.Top,
+                DataLabelsPosition = LiveChartsCore.Measure.DataLabelsPosition.Middle,
+                DataLabelsFormatter = point =>
+                {
+                    var t = TimeSpan.FromSeconds(point.Coordinate.PrimaryValue);
+                    if (t.TotalHours >= 1) return $"{(int)t.TotalHours}h {t.Minutes}m";
+                    if (t.TotalMinutes >= 1) return $"{t.Minutes}m {t.Seconds}s";
+                    return $"{(int)t.TotalSeconds}s";
+                }
             }
         ];
 
+        // X-axis is the value axis for RowSeries
         BarXAxes =
         [
             new Axis
             {
-                Labels = labels,
-                LabelsRotation = -30,
-                TextSize = 11,
+                Name = L.Get("Chart_TotalTimeAxis", "Total Time"),
                 LabelsPaint = new SolidColorPaint(SKColors.Gray),
+                TextSize = 11,
+                Labeler = val =>
+                {
+                    if (val < 0) return string.Empty;
+                    var t = TimeSpan.FromSeconds(val);
+                    if (t.TotalHours >= 1) return $"{(int)t.TotalHours}h {t.Minutes}m";
+                    if (t.TotalMinutes >= 1) return $"{t.Minutes}m {t.Seconds}s";
+                    return $"{(int)t.TotalSeconds}s";
+                }
             }
         ];
 
+        // Y-axis is the category axis for RowSeries
         BarYAxes =
         [
             new Axis
             {
-                Name = L.Get("Chart_SecondsAxis", "Seconds"),
-                LabelsPaint = new SolidColorPaint(SKColors.Gray),
+                Labels = labels,
                 TextSize = 11,
+                LabelsPaint = new SolidColorPaint(SKColors.Gray),
             }
         ];
     }
