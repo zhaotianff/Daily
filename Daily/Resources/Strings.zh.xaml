@@ -1,0 +1,49 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Window / Title Bar -->
+    <sys:String x:Key="AppTitle">Daily - 软件使用统计</sys:String>
+    <sys:String x:Key="TitleBar">Daily</sys:String>
+    <sys:String x:Key="ThemeToggle_Tooltip">切换深色/浅色模式</sys:String>
+
+    <!-- Navigation -->
+    <sys:String x:Key="Nav_Dashboard">仪表盘</sys:String>
+    <sys:String x:Key="Nav_Charts">图表</sys:String>
+    <sys:String x:Key="Nav_History">历史记录</sys:String>
+
+    <!-- Notify icon / tray -->
+    <sys:String x:Key="Menu_ShowHide">显示/隐藏</sys:String>
+    <sys:String x:Key="Menu_Exit">退出</sys:String>
+    <sys:String x:Key="NotifyIcon_Text">Daily – 软件使用统计</sys:String>
+
+    <!-- Dashboard page -->
+    <sys:String x:Key="Dashboard_Title">今日统计</sys:String>
+    <sys:String x:Key="Dashboard_MouseClicks">鼠标点击</sys:String>
+    <sys:String x:Key="Dashboard_KeyPresses">键盘按键</sys:String>
+    <sys:String x:Key="Dashboard_AppsTracked">已跟踪应用</sys:String>
+    <sys:String x:Key="Dashboard_AppUsage">应用程序使用情况</sys:String>
+
+    <!-- History page -->
+    <sys:String x:Key="History_Title">使用历史</sys:String>
+    <sys:String x:Key="History_SelectDate">选择日期</sys:String>
+    <sys:String x:Key="History_SelectDayLabel">请选择一天查看详情</sys:String>
+    <sys:String x:Key="History_AppUsage">应用程序使用情况</sys:String>
+    <sys:String x:Key="History_LabelFormat">{0:yyyy-MM-dd}  ·  {1} 个应用  ·  {2:N0} 次点击  ·  {3:N0} 次按键</sys:String>
+
+    <!-- Charts page -->
+    <sys:String x:Key="Charts_Title">使用图表</sys:String>
+    <sys:String x:Key="Charts_PieTitle">使用分布（饼图）</sys:String>
+    <sys:String x:Key="Charts_BarTitle">各应用使用量（柱状图）</sys:String>
+    <sys:String x:Key="Chart_UsageSeconds">使用时间（秒）</sys:String>
+    <sys:String x:Key="Chart_SecondsAxis">秒</sys:String>
+
+    <!-- Shared column headers -->
+    <sys:String x:Key="Col_Application">应用程序</sys:String>
+    <sys:String x:Key="Col_Process">进程</sys:String>
+    <sys:String x:Key="Col_Category">类别</sys:String>
+    <sys:String x:Key="Col_TotalTime">总时间</sys:String>
+    <sys:String x:Key="Col_LastActive">最近活跃</sys:String>
+
+</ResourceDictionary>

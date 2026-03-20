@@ -86,14 +86,15 @@ public sealed class StatisticsService : IDisposable
         // Flush time for the previous app
         FlushCurrentApp();
 
-        // Start tracking the new app
+        // Start tracking the new app (empty processName means no trackable app is active)
         _currentProcessName = processName;
         _currentAppName = appName;
         _currentExecPath = execPath;
         _currentAppStartTime = DateTime.Now;
 
         // Ensure the new app exists in the collection (on UI thread)
-        _dispatcher.BeginInvoke(() => EnsureRecord(processName, appName, execPath));
+        if (!string.IsNullOrEmpty(processName))
+            _dispatcher.BeginInvoke(() => EnsureRecord(processName, appName, execPath));
     }
 
     private void FlushCurrentApp()

@@ -14,7 +14,7 @@
 
             <!-- Header -->
             <TextBlock
-                Text="Today's Statistics"
+                Text="{DynamicResource Dashboard_Title}"
                 FontSize="28"
                 FontWeight="SemiBold"
                 Margin="0,0,0,20" />
@@ -34,7 +34,7 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                             <ui:SymbolIcon Symbol="CursorClick24" FontSize="22" Margin="0,0,8,0" />
-                            <TextBlock Text="Mouse Clicks" FontSize="14" VerticalAlignment="Center" Opacity="0.7" />
+                            <TextBlock Text="{DynamicResource Dashboard_MouseClicks}" FontSize="14" VerticalAlignment="Center" Opacity="0.7" />
                         </StackPanel>
                         <TextBlock
                             Text="{Binding Statistics.TotalMouseClicks, StringFormat={}{0:N0}}"
@@ -48,7 +48,7 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                             <ui:SymbolIcon Symbol="Keyboard24" FontSize="22" Margin="0,0,8,0" />
-                            <TextBlock Text="Key Presses" FontSize="14" VerticalAlignment="Center" Opacity="0.7" />
+                            <TextBlock Text="{DynamicResource Dashboard_KeyPresses}" FontSize="14" VerticalAlignment="Center" Opacity="0.7" />
                         </StackPanel>
                         <TextBlock
                             Text="{Binding Statistics.TotalKeyboardPresses, StringFormat={}{0:N0}}"
@@ -62,7 +62,7 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                             <ui:SymbolIcon Symbol="AppsList24" FontSize="22" Margin="0,0,8,0" />
-                            <TextBlock Text="Apps Tracked" FontSize="14" VerticalAlignment="Center" Opacity="0.7" />
+                            <TextBlock Text="{DynamicResource Dashboard_AppsTracked}" FontSize="14" VerticalAlignment="Center" Opacity="0.7" />
                         </StackPanel>
                         <TextBlock
                             Text="{Binding Statistics.AppUsages.Count, StringFormat={}{0:N0}}"
@@ -76,7 +76,7 @@
             <ui:Card Padding="0">
                 <StackPanel>
                     <TextBlock
-                        Text="Application Usage"
+                        Text="{DynamicResource Dashboard_AppUsage}"
                         FontSize="18"
                         FontWeight="SemiBold"
                         Margin="20,16,20,12" />
@@ -95,24 +95,24 @@
                         RowHeight="40">
                         <DataGrid.Columns>
                             <DataGridTextColumn
-                                Header="Application"
+                                Header="{DynamicResource Col_Application}"
                                 Binding="{Binding AppName}"
                                 Width="*"
                                 MinWidth="150" />
                             <DataGridTextColumn
-                                Header="Process"
+                                Header="{DynamicResource Col_Process}"
                                 Binding="{Binding ProcessName}"
                                 Width="130" />
                             <DataGridTextColumn
-                                Header="Category"
+                                Header="{DynamicResource Col_Category}"
                                 Binding="{Binding Category}"
                                 Width="110" />
                             <DataGridTextColumn
-                                Header="Total Time"
+                                Header="{DynamicResource Col_TotalTime}"
                                 Binding="{Binding FormattedTime}"
                                 Width="110" />
                             <DataGridTextColumn
-                                Header="Last Active"
+                                Header="{DynamicResource Col_LastActive}"
                                 Binding="{Binding LastActiveTime, StringFormat={}{0:HH:mm:ss}}"
                                 Width="110" />
                         </DataGrid.Columns>

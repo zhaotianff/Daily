@@ -57,20 +57,20 @@ public partial class MainWindow : FluentWindow
 
         var contextMenu = new ContextMenuStrip();
 
-        var showItem = new ToolStripMenuItem("Show / Hide");
+        var showItem = new ToolStripMenuItem(L.Get("Menu_ShowHide", "Show / Hide"));
         showItem.Click += (_, _) => ToggleWindowVisibility();
         contextMenu.Items.Add(showItem);
 
         contextMenu.Items.Add(new ToolStripSeparator());
 
-        var exitItem = new ToolStripMenuItem("Exit");
+        var exitItem = new ToolStripMenuItem(L.Get("Menu_Exit", "Exit"));
         exitItem.Click += (_, _) => ExitApplication();
         contextMenu.Items.Add(exitItem);
 
         _notifyIcon = new NotifyIcon
         {
             Icon = icon,
-            Text = "Daily – Software Usage Statistics",
+            Text = L.Get("NotifyIcon_Text", "Daily – Software Usage Statistics"),
             Visible = true,
             ContextMenuStrip = contextMenu,
         };

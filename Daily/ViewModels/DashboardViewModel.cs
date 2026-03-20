@@ -101,7 +101,7 @@ public partial class DashboardViewModel : ObservableObject
         [
             new ColumnSeries<double>
             {
-                Name = "Usage (seconds)",
+                Name = L.Get("Chart_UsageSeconds", "Usage (seconds)"),
                 Values = values,
                 Fill = new SolidColorPaint(new SKColor(79, 141, 249)),
                 DataLabelsSize = 11,
@@ -125,7 +125,7 @@ public partial class DashboardViewModel : ObservableObject
         [
             new Axis
             {
-                Name = "Seconds",
+                Name = L.Get("Chart_SecondsAxis", "Seconds"),
                 LabelsPaint = new SolidColorPaint(SKColors.Gray),
                 TextSize = 11,
             }

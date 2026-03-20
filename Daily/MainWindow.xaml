@@ -7,7 +7,7 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:views="clr-namespace:Daily.Views"
     mc:Ignorable="d"
-    Title="Daily - Software Usage Statistics"
+    Title="{DynamicResource AppTitle}"
     Width="1100"
     Height="720"
     MinWidth="800"
@@ -25,7 +25,7 @@
         <!-- Title Bar -->
         <ui:TitleBar
             Grid.Row="0"
-            Title="Daily"
+            Title="{DynamicResource TitleBar}"
             ShowMaximize="True"
             ShowMinimize="True">
             <ui:TitleBar.TrailingContent>
@@ -35,7 +35,7 @@
                         Appearance="Transparent"
                         Width="36" Height="36"
                         Padding="0"
-                        ToolTip="Toggle Dark/Light Mode"
+                        ToolTip="{DynamicResource ThemeToggle_Tooltip}"
                         Click="ThemeToggleButton_Click">
                         <ui:SymbolIcon Symbol="WeatherMoon24" />
                     </ui:Button>
@@ -53,21 +53,21 @@
 
             <ui:NavigationView.MenuItems>
                 <ui:NavigationViewItem
-                    Content="Dashboard"
+                    Content="{DynamicResource Nav_Dashboard}"
                     TargetPageType="{x:Type views:DashboardPage}">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="Home24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem
-                    Content="Charts"
+                    Content="{DynamicResource Nav_Charts}"
                     TargetPageType="{x:Type views:ChartsPage}">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="DataPie24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
                 <ui:NavigationViewItem
-                    Content="History"
+                    Content="{DynamicResource Nav_History}"
                     TargetPageType="{x:Type views:HistoryPage}">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="History24" />

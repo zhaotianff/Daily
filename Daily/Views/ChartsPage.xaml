@@ -14,7 +14,7 @@
         <StackPanel Margin="24,16,24,24">
 
             <TextBlock
-                Text="Usage Charts"
+                Text="{DynamicResource Charts_Title}"
                 FontSize="28"
                 FontWeight="SemiBold"
                 Margin="0,0,0,20" />
@@ -23,7 +23,7 @@
             <ui:Card Margin="0,0,0,20" Padding="20">
                 <StackPanel>
                     <TextBlock
-                        Text="Usage Distribution (Pie)"
+                        Text="{DynamicResource Charts_PieTitle}"
                         FontSize="18"
                         FontWeight="SemiBold"
                         Margin="0,0,0,12" />
@@ -40,7 +40,7 @@
             <ui:Card Padding="20">
                 <StackPanel>
                     <TextBlock
-                        Text="Usage by Application (Bar)"
+                        Text="{DynamicResource Charts_BarTitle}"
                         FontSize="18"
                         FontWeight="SemiBold"
                         Margin="0,0,0,12" />
