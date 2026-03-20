@@ -2,13 +2,14 @@
 using Daily.Services;
 using Daily.ViewModels;
 using Daily.Views;
+using WpfApplication = System.Windows.Application;
 
 namespace Daily;
 
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>
-public partial class App : Application
+public partial class App : WpfApplication
 {
     private StatisticsService? _statisticsService;
 
@@ -19,8 +20,9 @@ public partial class App : Application
         _statisticsService = new StatisticsService(Dispatcher);
         var dashboardVm = new DashboardViewModel(_statisticsService);
         var mainVm = new MainViewModel(_statisticsService);
+        var historyVm = new HistoryViewModel(_statisticsService);
 
-        var window = new MainWindow(mainVm, dashboardVm);
+        var window = new MainWindow(mainVm, dashboardVm, historyVm);
         MainWindow = window;
         window.Show();
 

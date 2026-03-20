@@ -102,11 +102,15 @@
                             <DataGridTextColumn
                                 Header="Process"
                                 Binding="{Binding ProcessName}"
-                                Width="140" />
+                                Width="130" />
+                            <DataGridTextColumn
+                                Header="Category"
+                                Binding="{Binding Category}"
+                                Width="110" />
                             <DataGridTextColumn
                                 Header="Total Time"
                                 Binding="{Binding FormattedTime}"
-                                Width="120" />
+                                Width="110" />
                             <DataGridTextColumn
                                 Header="Last Active"
                                 Binding="{Binding LastActiveTime, StringFormat={}{0:HH:mm:ss}}"

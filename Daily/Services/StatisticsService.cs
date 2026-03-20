@@ -10,12 +10,15 @@ namespace Daily.Services;
 /// <summary>
 /// Central service that manages usage statistics.
 /// Coordinates between the foreground window tracker and global input hooks.
+/// Persists data across sessions via <see cref="DataPersistenceService"/>.
 /// </summary>
 public sealed class StatisticsService : IDisposable
 {
     private readonly ForegroundWindowTracker _windowTracker = new();
     private readonly GlobalHookService _hookService = new();
+    private readonly DataPersistenceService _persistence = new();
     private readonly DispatcherTimer _uiUpdateTimer;
+    private readonly DispatcherTimer _autoSaveTimer;
     private readonly Dispatcher _dispatcher;
 
     private string _currentProcessName = string.Empty;
@@ -37,7 +40,20 @@ public sealed class StatisticsService : IDisposable
         };
         _uiUpdateTimer.Tick += OnUiUpdate;
 
+        // Auto-save every 5 minutes
+        _autoSaveTimer = new DispatcherTimer(DispatcherPriority.Background)
+        {
+            Interval = TimeSpan.FromMinutes(5)
+        };
+        _autoSaveTimer.Tick += (_, _) => _persistence.SaveToday(Statistics);
+
         _windowTracker.AppChanged += OnAppChanged;
+
+        // Load persisted data for today on startup
+        _persistence.LoadToday(Statistics);
+
+        // Restore input count offsets so today's hooks add on top of persisted totals
+        _hookService.SetInitialCounts(Statistics.TotalMouseClicks, Statistics.TotalKeyboardPresses);
     }
 
     public void Start()
@@ -45,15 +61,25 @@ public sealed class StatisticsService : IDisposable
         _hookService.Install();
         _windowTracker.Start();
         _uiUpdateTimer.Start();
+        _autoSaveTimer.Start();
     }
 
     public void Stop()
     {
         _uiUpdateTimer.Stop();
+        _autoSaveTimer.Stop();
         _hookService.Uninstall();
         // Update final time for the current app
         FlushCurrentApp();
+        // Persist data before stopping
+        _persistence.SaveToday(Statistics);
     }
+
+    /// <summary>
+    /// Loads all persisted historical snapshots (including today).
+    /// </summary>
+    public IReadOnlyList<DailySnapshot> LoadAllHistory() =>
+        _persistence.LoadAllHistory();
 
     private void OnAppChanged(string processName, string appName, string execPath)
     {
@@ -103,7 +129,8 @@ public sealed class StatisticsService : IDisposable
                 ProcessName = processName,
                 AppName = appName,
                 ExecutablePath = execPath,
-                LastActiveTime = DateTime.Now
+                LastActiveTime = DateTime.Now,
+                Category = ProgramCategoryService.GetCategory(processName, execPath),
             };
             Statistics.AppUsages.Add(record);
         }
@@ -139,3 +166,4 @@ public sealed class StatisticsService : IDisposable
         _hookService.Dispose();
     }
 }
+

@@ -13,7 +13,8 @@
     MinWidth="800"
     MinHeight="550"
     WindowStartupLocation="CenterScreen"
-    ExtendsContentIntoTitleBar="True">
+    ExtendsContentIntoTitleBar="True"
+    Closing="Window_Closing">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -63,6 +64,13 @@
                     TargetPageType="{x:Type views:ChartsPage}">
                     <ui:NavigationViewItem.Icon>
                         <ui:SymbolIcon Symbol="DataPie24" />
+                    </ui:NavigationViewItem.Icon>
+                </ui:NavigationViewItem>
+                <ui:NavigationViewItem
+                    Content="History"
+                    TargetPageType="{x:Type views:HistoryPage}">
+                    <ui:NavigationViewItem.Icon>
+                        <ui:SymbolIcon Symbol="History24" />
                     </ui:NavigationViewItem.Icon>
                 </ui:NavigationViewItem>
             </ui:NavigationView.MenuItems>
