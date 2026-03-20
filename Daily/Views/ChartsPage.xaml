@@ -1,0 +1,59 @@
+<Page
+    x:Class="Daily.Views.ChartsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+    mc:Ignorable="d"
+    d:DesignHeight="650" d:DesignWidth="900"
+    Title="Charts">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24,16,24,24">
+
+            <TextBlock
+                Text="Usage Charts"
+                FontSize="28"
+                FontWeight="SemiBold"
+                Margin="0,0,0,20" />
+
+            <!-- Pie Chart -->
+            <ui:Card Margin="0,0,0,20" Padding="20">
+                <StackPanel>
+                    <TextBlock
+                        Text="Usage Distribution (Pie)"
+                        FontSize="18"
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,12" />
+                    <lvc:PieChart
+                        Height="340"
+                        Series="{Binding PieSeries}"
+                        LegendPosition="Right"
+                        AnimationsSpeed="0:0:0.4"
+                        EasingFunction="{x:Null}" />
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Bar Chart -->
+            <ui:Card Padding="20">
+                <StackPanel>
+                    <TextBlock
+                        Text="Usage by Application (Bar)"
+                        FontSize="18"
+                        FontWeight="SemiBold"
+                        Margin="0,0,0,12" />
+                    <lvc:CartesianChart
+                        Height="320"
+                        Series="{Binding BarSeries}"
+                        XAxes="{Binding BarXAxes}"
+                        YAxes="{Binding BarYAxes}"
+                        AnimationsSpeed="0:0:0.4"
+                        EasingFunction="{x:Null}" />
+                </StackPanel>
+            </ui:Card>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>
