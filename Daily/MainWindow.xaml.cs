@@ -16,12 +16,16 @@ namespace Daily;
 public partial class MainWindow : FluentWindow
 {
     private readonly MainViewModel _mainViewModel;
+    private readonly DashboardViewModel _dashboardViewModel;
+    private readonly HistoryViewModel _historyViewModel;
     private NotifyIcon? _notifyIcon;
     private bool _isExiting;
 
     public MainWindow(MainViewModel mainViewModel, DashboardViewModel dashboardViewModel, HistoryViewModel historyViewModel)
     {
         _mainViewModel = mainViewModel;
+        _dashboardViewModel = dashboardViewModel;
+        _historyViewModel = historyViewModel;
 
         InitializeComponent();
         DataContext = mainViewModel;
@@ -126,5 +130,10 @@ public partial class MainWindow : FluentWindow
         // Update button icon
         if (ThemeToggleButton.Content is SymbolIcon icon)
             icon.Symbol = _mainViewModel.IsDarkTheme ? SymbolRegular.WeatherMoon24 : SymbolRegular.WeatherSunny24;
+
+        // Refresh charts so they use the correct label colours for the new theme
+        var themeName = _mainViewModel.IsDarkTheme ? "Dark" : "Light";
+        _dashboardViewModel.CurrentTheme = themeName;
+        _historyViewModel.CurrentTheme = themeName;
     }
 }

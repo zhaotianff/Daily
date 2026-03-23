@@ -24,6 +24,8 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty]
     private string _currentTheme = "Dark";
 
+    partial void OnCurrentThemeChanged(string value) => RefreshCharts();
+
     // ── Chart Series ──────────────────────────────────────────────
 
     [ObservableProperty]
@@ -123,7 +125,7 @@ public partial class DashboardViewModel : ObservableObject
             new Axis
             {
                 Name = L.Get("Chart_TotalTimeAxis", "Total Time"),
-                LabelsPaint = new SolidColorPaint(SKColors.Gray),
+                LabelsPaint = new SolidColorPaint(ChartThemeHelper.GetLabelColor(CurrentTheme)),
                 TextSize = 11,
                 Labeler = val =>
                 {
@@ -143,7 +145,7 @@ public partial class DashboardViewModel : ObservableObject
             {
                 Labels = labels,
                 TextSize = 11,
-                LabelsPaint = new SolidColorPaint(SKColors.Gray),
+                LabelsPaint = new SolidColorPaint(ChartThemeHelper.GetLabelColor(CurrentTheme)),
             }
         ];
     }
