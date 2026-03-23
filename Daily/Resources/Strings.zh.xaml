@@ -34,8 +34,13 @@
 
     <!-- Charts page -->
     <sys:String x:Key="Charts_Title">使用图表</sys:String>
-    <sys:String x:Key="Charts_PieTitle">使用分布（饼图）</sys:String>
-    <sys:String x:Key="Charts_BarTitle">各应用使用量（柱状图）</sys:String>
+    <sys:String x:Key="Charts_Subtitle">今日使用时间最多的前 10 个应用程序</sys:String>
+    <sys:String x:Key="Charts_PieTitle">使用分布</sys:String>
+    <sys:String x:Key="Charts_PieSubtitle">各应用程序占总使用时间的比例</sys:String>
+    <sys:String x:Key="Charts_BarTitle">各应用使用量</sys:String>
+    <sys:String x:Key="Charts_BarSubtitle">各应用程序的使用总时长</sys:String>
+    <sys:String x:Key="Chart_TotalTime">总时间</sys:String>
+    <sys:String x:Key="Chart_TotalTimeAxis">总时间</sys:String>
     <sys:String x:Key="Chart_UsageSeconds">使用时间（秒）</sys:String>
     <sys:String x:Key="Chart_SecondsAxis">秒</sys:String>
 

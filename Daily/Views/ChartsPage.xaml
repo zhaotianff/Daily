@@ -17,18 +17,31 @@
                 Text="{DynamicResource Charts_Title}"
                 FontSize="28"
                 FontWeight="SemiBold"
+                Margin="0,0,0,4" />
+            <TextBlock
+                Text="{DynamicResource Charts_Subtitle}"
+                FontSize="13"
+                Opacity="0.6"
                 Margin="0,0,0,20" />
 
             <!-- Pie Chart -->
-            <ui:Card Margin="0,0,0,20" Padding="20">
+            <ui:Card Margin="0,0,0,16" Padding="20">
                 <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <ui:SymbolIcon Symbol="DataPie24" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center" />
+                        <TextBlock
+                            Text="{DynamicResource Charts_PieTitle}"
+                            FontSize="17"
+                            FontWeight="SemiBold"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
                     <TextBlock
-                        Text="{DynamicResource Charts_PieTitle}"
-                        FontSize="18"
-                        FontWeight="SemiBold"
+                        Text="{DynamicResource Charts_PieSubtitle}"
+                        FontSize="12"
+                        Opacity="0.6"
                         Margin="0,0,0,12" />
                     <lvc:PieChart
-                        Height="340"
+                        Height="360"
                         Series="{Binding PieSeries}"
                         LegendPosition="Right"
                         AnimationsSpeed="0:0:0.4"
@@ -39,13 +52,21 @@
             <!-- Bar Chart -->
             <ui:Card Padding="20">
                 <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                        <ui:SymbolIcon Symbol="DataHistogram24" FontSize="18" Margin="0,0,8,0" VerticalAlignment="Center" />
+                        <TextBlock
+                            Text="{DynamicResource Charts_BarTitle}"
+                            FontSize="17"
+                            FontWeight="SemiBold"
+                            VerticalAlignment="Center" />
+                    </StackPanel>
                     <TextBlock
-                        Text="{DynamicResource Charts_BarTitle}"
-                        FontSize="18"
-                        FontWeight="SemiBold"
+                        Text="{DynamicResource Charts_BarSubtitle}"
+                        FontSize="12"
+                        Opacity="0.6"
                         Margin="0,0,0,12" />
                     <lvc:CartesianChart
-                        Height="320"
+                        Height="340"
                         Series="{Binding BarSeries}"
                         XAxes="{Binding BarXAxes}"
                         YAxes="{Binding BarYAxes}"

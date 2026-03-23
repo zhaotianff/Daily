@@ -5,95 +5,147 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
     mc:Ignorable="d"
     d:DesignHeight="650" d:DesignWidth="900"
     Title="History">
 
-    <Grid Margin="24,16,24,24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="24,16,24,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <TextBlock
-            Grid.Row="0"
-            Text="{DynamicResource History_Title}"
-            FontSize="28"
-            FontWeight="SemiBold"
-            Margin="0,0,0,16" />
+            <!-- Header -->
+            <TextBlock
+                Grid.Row="0"
+                Text="{DynamicResource History_Title}"
+                FontSize="28"
+                FontWeight="SemiBold"
+                Margin="0,0,0,16" />
 
-        <!-- Day selector -->
-        <ui:Card Grid.Row="1" Padding="16" Margin="0,0,0,16">
-            <StackPanel>
-                <TextBlock Text="{DynamicResource History_SelectDate}" FontSize="13" Opacity="0.7" Margin="0,0,0,6" />
-                <ComboBox
-                    ItemsSource="{Binding AvailableDays}"
-                    SelectedItem="{Binding SelectedDay, Mode=TwoWay}"
-                    MinWidth="200"
-                    HorizontalAlignment="Left">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Date, StringFormat={}{0:yyyy-MM-dd (ddd)}}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-                <TextBlock
-                    Text="{Binding SelectedDayLabel}"
-                    FontSize="13"
-                    Opacity="0.7"
-                    Margin="0,8,0,0" />
-            </StackPanel>
-        </ui:Card>
+            <!-- Day selector -->
+            <ui:Card Grid.Row="1" Padding="16" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource History_SelectDate}" FontSize="13" Opacity="0.7" Margin="0,0,0,6" />
+                    <DatePicker
+                        SelectedDate="{Binding SelectedDate, Mode=TwoWay}"
+                        DisplayDateStart="{Binding MinDate}"
+                        DisplayDateEnd="{Binding MaxDate}"
+                        HorizontalAlignment="Left"
+                        MinWidth="200" />
+                    <TextBlock
+                        Text="{Binding SelectedDayLabel}"
+                        FontSize="13"
+                        Opacity="0.7"
+                        Margin="0,8,0,0" />
+                </StackPanel>
+            </ui:Card>
 
-        <!-- App usage table for the selected day -->
-        <ui:Card Grid.Row="2" Padding="0">
-            <StackPanel>
-                <TextBlock
-                    Text="{DynamicResource History_AppUsage}"
-                    FontSize="18"
-                    FontWeight="SemiBold"
-                    Margin="20,16,20,12" />
+            <!-- Charts for the selected day -->
+            <Grid Grid.Row="2" Margin="0,0,0,16">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasChartData}" Value="False">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
 
-                <DataGrid
-                    ItemsSource="{Binding SelectedDayApps}"
-                    AutoGenerateColumns="False"
-                    CanUserAddRows="False"
-                    CanUserDeleteRows="False"
-                    IsReadOnly="True"
-                    SelectionMode="Single"
-                    BorderThickness="0"
-                    GridLinesVisibility="Horizontal"
-                    HeadersVisibility="Column"
-                    Margin="4,0,4,8"
-                    RowHeight="40">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn
-                            Header="{DynamicResource Col_Application}"
-                            Binding="{Binding AppName}"
-                            Width="*"
-                            MinWidth="150" />
-                        <DataGridTextColumn
-                            Header="{DynamicResource Col_Process}"
-                            Binding="{Binding ProcessName}"
-                            Width="130" />
-                        <DataGridTextColumn
-                            Header="{DynamicResource Col_Category}"
-                            Binding="{Binding Category}"
-                            Width="110" />
-                        <DataGridTextColumn
-                            Header="{DynamicResource Col_TotalTime}"
-                            Binding="{Binding FormattedTime}"
-                            Width="110" />
-                        <DataGridTextColumn
-                            Header="{DynamicResource Col_LastActive}"
-                            Binding="{Binding LastActiveTime, StringFormat={}{0:HH:mm:ss}}"
-                            Width="100" />
-                    </DataGrid.Columns>
-                </DataGrid>
-            </StackPanel>
-        </ui:Card>
+                <!-- Pie chart -->
+                <ui:Card Grid.Column="0" Padding="16">
+                    <StackPanel>
+                        <TextBlock
+                            Text="{DynamicResource Charts_PieTitle}"
+                            FontSize="15"
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,10" />
+                        <lvc:PieChart
+                            Height="260"
+                            Series="{Binding HistoryPieSeries}"
+                            LegendPosition="Bottom"
+                            AnimationsSpeed="0:0:0.3"
+                            EasingFunction="{x:Null}" />
+                    </StackPanel>
+                </ui:Card>
 
-    </Grid>
+                <!-- Bar chart -->
+                <ui:Card Grid.Column="2" Padding="16">
+                    <StackPanel>
+                        <TextBlock
+                            Text="{DynamicResource Charts_BarTitle}"
+                            FontSize="15"
+                            FontWeight="SemiBold"
+                            Margin="0,0,0,10" />
+                        <lvc:CartesianChart
+                            Height="260"
+                            Series="{Binding HistoryBarSeries}"
+                            XAxes="{Binding HistoryBarXAxes}"
+                            YAxes="{Binding HistoryBarYAxes}"
+                            AnimationsSpeed="0:0:0.3"
+                            EasingFunction="{x:Null}" />
+                    </StackPanel>
+                </ui:Card>
+            </Grid>
+
+            <!-- App usage table for the selected day -->
+            <ui:Card Grid.Row="3" Padding="0">
+                <StackPanel>
+                    <TextBlock
+                        Text="{DynamicResource History_AppUsage}"
+                        FontSize="18"
+                        FontWeight="SemiBold"
+                        Margin="20,16,20,12" />
+
+                    <DataGrid
+                        ItemsSource="{Binding SelectedDayApps}"
+                        AutoGenerateColumns="False"
+                        CanUserAddRows="False"
+                        CanUserDeleteRows="False"
+                        IsReadOnly="True"
+                        SelectionMode="Single"
+                        BorderThickness="0"
+                        GridLinesVisibility="Horizontal"
+                        HeadersVisibility="Column"
+                        Margin="4,0,4,8"
+                        RowHeight="40">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn
+                                Header="{DynamicResource Col_Application}"
+                                Binding="{Binding AppName}"
+                                Width="*"
+                                MinWidth="150" />
+                            <DataGridTextColumn
+                                Header="{DynamicResource Col_Process}"
+                                Binding="{Binding ProcessName}"
+                                Width="130" />
+                            <DataGridTextColumn
+                                Header="{DynamicResource Col_Category}"
+                                Binding="{Binding Category}"
+                                Width="110" />
+                            <DataGridTextColumn
+                                Header="{DynamicResource Col_TotalTime}"
+                                Binding="{Binding FormattedTime}"
+                                Width="110" />
+                            <DataGridTextColumn
+                                Header="{DynamicResource Col_LastActive}"
+                                Binding="{Binding LastActiveTime, StringFormat={}{0:HH:mm:ss}}"
+                                Width="100" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </ui:Card>
+
+        </Grid>
+    </ScrollViewer>
 </Page>

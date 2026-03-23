@@ -34,8 +34,13 @@
 
     <!-- Charts page -->
     <sys:String x:Key="Charts_Title">Usage Charts</sys:String>
-    <sys:String x:Key="Charts_PieTitle">Usage Distribution (Pie)</sys:String>
-    <sys:String x:Key="Charts_BarTitle">Usage by Application (Bar)</sys:String>
+    <sys:String x:Key="Charts_Subtitle">Top 10 applications by usage time today</sys:String>
+    <sys:String x:Key="Charts_PieTitle">Usage Distribution</sys:String>
+    <sys:String x:Key="Charts_PieSubtitle">Share of total usage time per application</sys:String>
+    <sys:String x:Key="Charts_BarTitle">Usage by Application</sys:String>
+    <sys:String x:Key="Charts_BarSubtitle">Total time spent in each application</sys:String>
+    <sys:String x:Key="Chart_TotalTime">Total Time</sys:String>
+    <sys:String x:Key="Chart_TotalTimeAxis">Total Time</sys:String>
     <sys:String x:Key="Chart_UsageSeconds">Usage (seconds)</sys:String>
     <sys:String x:Key="Chart_SecondsAxis">Seconds</sys:String>
 
