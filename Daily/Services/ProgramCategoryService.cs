@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using Daily.Models;
 
 namespace Daily.Services;
@@ -14,19 +17,19 @@ namespace Daily.Services;
 /// </summary>
 public class ProgramCategoryService
 {
-    public const string CategoryWork = "Work";
-    public const string CategoryBrowser = "Browser";
-    public const string CategorySocial = "Social";
-    public const string CategoryCommunication = "Communication";
-    public const string CategoryDevelopment = "Development";
-    public const string CategoryEntertainment = "Entertainment";
-    public const string CategoryGaming = "Gaming";
-    public const string CategoryMedia = "Media";
-    public const string CategoryUtility = "Utility";
-    public const string CategoryEducation = "Education";
-    public const string CategoryFinance = "Finance";
-    public const string CategorySecurity = "Security";
-    public const string CategoryOther = "Other";
+    public const string CategoryWork = "工作";
+    public const string CategoryBrowser = "浏览器";
+    public const string CategorySocial = "社交";
+    public const string CategoryCommunication = "通讯";
+    public const string CategoryDevelopment = "开发";
+    public const string CategoryEntertainment = "娱乐";
+    public const string CategoryGaming = "游戏";
+    public const string CategoryMedia = "媒体";
+    public const string CategoryUtility = "实用工具";
+    public const string CategoryEducation = "教育";
+    public const string CategoryFinance = "金融";
+    public const string CategorySecurity = "安全";
+    public const string CategoryOther = "其他";
 
     /// <summary>All available category names.</summary>
     public static readonly IReadOnlyList<string> AllCategories =
@@ -367,7 +370,12 @@ public class ProgramCategoryService
             var json = File.ReadAllText(UserConfigFile);
             var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
             if (dict is not null)
-                _userMap = new Dictionary<string, string>(dict, StringComparer.OrdinalIgnoreCase);
+            {
+                // Migrate legacy English category names to Chinese
+                _userMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var kv in dict)
+                    _userMap[kv.Key] = MigrateCategory(kv.Value);
+            }
         }
         catch { /* ignore corrupt file */ }
     }
@@ -379,4 +387,125 @@ public class ProgramCategoryService
             Directory.CreateDirectory(dir);
         File.WriteAllText(UserConfigFile, JsonSerializer.Serialize(_userMap, JsonOpts));
     }
+
+    // ── Internet category lookup ─────────────────────────────────────────
+
+    private const int InternetLookupTimeoutSeconds = 8;
+
+    // Static HttpClient is the recommended pattern: instantiate once, reuse throughout app lifetime.
+    private static readonly HttpClient _httpClient = new()
+    {
+        Timeout = TimeSpan.FromSeconds(InternetLookupTimeoutSeconds),
+    };
+
+    /// <summary>
+    /// Queries the Microsoft Store public search API to determine the category
+    /// for a program that is not in the built-in or user map.
+    /// Saves the result as a user override so future look-ups are instant.
+    /// Returns <see cref="CategoryOther"/> when the look-up fails or finds no match.
+    /// </summary>
+    public async Task<string> QueryCategoryFromInternetAsync(string processName, string executablePath = "")
+    {
+        if (string.IsNullOrWhiteSpace(processName))
+            return CategoryOther;
+
+        // Build a friendly search term: try the executable's product name first,
+        // otherwise use the raw process name.
+        var searchTerm = processName;
+        if (!string.IsNullOrEmpty(executablePath))
+        {
+            try
+            {
+                var versionInfo = System.Diagnostics.FileVersionInfo.GetVersionInfo(executablePath);
+                if (!string.IsNullOrWhiteSpace(versionInfo.ProductName))
+                    searchTerm = versionInfo.ProductName;
+            }
+            catch { }
+        }
+
+        try
+        {
+            var query = Uri.EscapeDataString(searchTerm);
+            var url = $"https://storeedgefd.dsx.mp.microsoft.com/v9.0/search" +
+                      $"?market=CN&locale=zh-CN&query={query}&deviceFamily=Windows.Desktop&skuTypes=full;trial";
+
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(InternetLookupTimeoutSeconds));
+            var json = await _httpClient.GetStringAsync(url, cts.Token);
+
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("Products", out var products))
+            {
+                foreach (var product in products.EnumerateArray())
+                {
+                    var category = TryReadString(product, "Category")
+                                   ?? TryReadString(product, "SubCategory")
+                                   ?? string.Empty;
+
+                    var mapped = MapStoreCategoryToChinese(category);
+                    if (mapped != CategoryOther)
+                    {
+                        SetUserCategory(processName, mapped);
+                        return mapped;
+                    }
+                }
+            }
+        }
+        catch { /* network or parse error – fall through */ }
+
+        return CategoryOther;
+    }
+
+    private static string? TryReadString(JsonElement element, string property)
+    {
+        if (element.TryGetProperty(property, out var prop) &&
+            prop.ValueKind == JsonValueKind.String)
+            return prop.GetString();
+        return null;
+    }
+
+    /// <summary>Maps a Microsoft Store category string to a Chinese category constant.</summary>
+    private static string MapStoreCategoryToChinese(string storeCategory)
+    {
+        var c = storeCategory.ToLowerInvariant();
+        if (c.Contains("game") || c.Contains("gaming"))           return CategoryGaming;
+        if (c.Contains("browser"))                                 return CategoryBrowser;
+        if (c.Contains("productivity") || c.Contains("business")
+            || c.Contains("office"))                               return CategoryWork;
+        if (c.Contains("social") || c.Contains("networking"))     return CategorySocial;
+        if (c.Contains("communication") || c.Contains("email")
+            || c.Contains("messaging"))                            return CategoryCommunication;
+        if (c.Contains("developer") || c.Contains("development")
+            || c.Contains("coding"))                               return CategoryDevelopment;
+        if (c.Contains("entertainment") || c.Contains("video")
+            || c.Contains("streaming"))                            return CategoryEntertainment;
+        if (c.Contains("music") || c.Contains("audio")
+            || c.Contains("media"))                                return CategoryMedia;
+        if (c.Contains("utility") || c.Contains("tool")
+            || c.Contains("system"))                               return CategoryUtility;
+        if (c.Contains("education") || c.Contains("learning")
+            || c.Contains("book") || c.Contains("reference"))     return CategoryEducation;
+        if (c.Contains("finance") || c.Contains("money")
+            || c.Contains("banking"))                              return CategoryFinance;
+        if (c.Contains("security") || c.Contains("privacy"))      return CategorySecurity;
+        return CategoryOther;
+    }
+
+    /// <summary>Converts a legacy English category name to its Chinese equivalent.</summary>
+    private static string MigrateCategory(string value) => value switch
+    {
+        "Work"           => CategoryWork,
+        "Browser"        => CategoryBrowser,
+        "Social"         => CategorySocial,
+        "Communication"  => CategoryCommunication,
+        "Development"    => CategoryDevelopment,
+        "Entertainment"  => CategoryEntertainment,
+        "Gaming"         => CategoryGaming,
+        "Media"          => CategoryMedia,
+        "Utility"        => CategoryUtility,
+        "Education"      => CategoryEducation,
+        "Finance"        => CategoryFinance,
+        "Security"       => CategorySecurity,
+        "Other"          => CategoryOther,
+        _                => value,   // already Chinese or custom
+    };
 }

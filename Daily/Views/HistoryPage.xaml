@@ -112,7 +112,7 @@
                         AutoGenerateColumns="False"
                         CanUserAddRows="False"
                         CanUserDeleteRows="False"
-                        IsReadOnly="False"
+                        IsReadOnly="True"
                         SelectionMode="Single"
                         BorderThickness="0"
                         GridLinesVisibility="Horizontal"
@@ -131,28 +131,12 @@
                                 Binding="{Binding ProcessName}"
                                 Width="130"
                                 IsReadOnly="True" />
-                            <!-- Category: editable ComboBox -->
-                            <DataGridTemplateColumn
+                            <!-- Category: read-only; edit via Category Editor page -->
+                            <DataGridTextColumn
                                 Header="{DynamicResource Col_Category}"
-                                Width="130">
-                                <DataGridTemplateColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <TextBlock
-                                            Text="{Binding Category}"
-                                            VerticalAlignment="Center"
-                                            Margin="4,0" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellTemplate>
-                                <DataGridTemplateColumn.CellEditingTemplate>
-                                    <DataTemplate>
-                                        <ComboBox
-                                            ItemsSource="{Binding DataContext.CategoryList,
-                                                RelativeSource={RelativeSource AncestorType=Page}}"
-                                            SelectedItem="{Binding Category, UpdateSourceTrigger=PropertyChanged}"
-                                            IsDropDownOpen="True" />
-                                    </DataTemplate>
-                                </DataGridTemplateColumn.CellEditingTemplate>
-                            </DataGridTemplateColumn>
+                                Binding="{Binding Category}"
+                                Width="130"
+                                IsReadOnly="True" />
                             <DataGridTextColumn
                                 Header="{DynamicResource Col_TotalTime}"
                                 Binding="{Binding FormattedTime}"

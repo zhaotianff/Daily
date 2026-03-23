@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Threading;
 using Daily.Models;
 
@@ -102,7 +103,7 @@ public sealed class StatisticsService : IDisposable
 
         // Ensure the new app exists in the collection (on UI thread)
         if (!string.IsNullOrEmpty(processName))
-            _dispatcher.BeginInvoke(() => EnsureRecord(processName, appName, execPath));
+            _dispatcher.BeginInvoke(() => EnsureRecordWithInternetLookup(processName, appName, execPath));
     }
 
     private void FlushCurrentApp()
@@ -144,6 +145,30 @@ public sealed class StatisticsService : IDisposable
             Statistics.AppUsages.Add(record);
         }
         return record;
+    }
+
+    /// <summary>
+    /// Ensures a usage record exists for the given process.
+    /// If the category resolves to the fallback "其他", an asynchronous internet
+    /// look-up is triggered and the record is updated when the result arrives.
+    /// </summary>
+    private void EnsureRecordWithInternetLookup(string processName, string appName, string execPath)
+    {
+        var record = EnsureRecord(processName, appName, execPath);
+
+        if (record.Category == ProgramCategoryService.CategoryOther)
+        {
+            // Fire-and-forget: run the HTTP query on a thread-pool thread, then marshal the
+            // result back to the UI (dispatcher) thread before updating the record property.
+            // `record` is captured by reference; its Category property is only ever written
+            // on the dispatcher thread, so no additional synchronisation is needed.
+            _ = Task.Run(async () =>
+            {
+                var category = await _categoryService.QueryCategoryFromInternetAsync(processName, execPath);
+                if (category != ProgramCategoryService.CategoryOther)
+                    _ = _dispatcher.BeginInvoke(() => record.Category = category);
+            });
+        }
     }
 
     private void OnUiUpdate(object? sender, EventArgs e)
