@@ -1,5 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,11 +17,15 @@ namespace Daily.ViewModels;
 public partial class DashboardViewModel : ObservableObject
 {
     private readonly StatisticsService _statisticsService;
+    private readonly ProgramCategoryService _categoryService;
 
     private const int MaxPieChartLabelLength = 20;
     private const int MaxBarChartLabelLength = 15;
 
     public DailyStatistics Statistics => _statisticsService.Statistics;
+
+    /// <summary>All available category names, for binding to ComboBoxes.</summary>
+    public IReadOnlyList<string> CategoryList => ProgramCategoryService.AllCategories;
 
     [ObservableProperty]
     private string _currentTheme = "Dark";
@@ -40,20 +46,64 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty]
     private Axis[] _barYAxes = [];
 
-    public DashboardViewModel(StatisticsService statisticsService)
+    /// <summary>App usages sorted by total usage time descending.</summary>
+    [ObservableProperty]
+    private ObservableCollection<AppUsageRecord> _sortedAppUsages = [];
+
+    public DashboardViewModel(StatisticsService statisticsService, ProgramCategoryService categoryService)
     {
         _statisticsService = statisticsService;
+        _categoryService = categoryService;
 
-        // React to collection changes to refresh charts
-        Statistics.AppUsages.CollectionChanged += (_, _) => RefreshCharts();
+        // React to collection changes to refresh charts and sorted list
+        Statistics.AppUsages.CollectionChanged += OnAppUsagesCollectionChanged;
+
+        // Subscribe to existing records (if any were loaded from disk)
+        foreach (var record in Statistics.AppUsages)
+            record.PropertyChanged += OnRecordPropertyChanged;
+
+        RefreshSortedApps();
 
         // Also refresh charts on a timer to pick up time updates
         var timer = new System.Windows.Threading.DispatcherTimer
         {
             Interval = TimeSpan.FromSeconds(5)
         };
-        timer.Tick += (_, _) => RefreshCharts();
+        timer.Tick += (_, _) => { RefreshSortedApps(); RefreshCharts(); };
         timer.Start();
+    }
+
+    private void OnAppUsagesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (e.OldItems is not null)
+            foreach (AppUsageRecord record in e.OldItems)
+                record.PropertyChanged -= OnRecordPropertyChanged;
+
+        if (e.NewItems is not null)
+            foreach (AppUsageRecord record in e.NewItems)
+                record.PropertyChanged += OnRecordPropertyChanged;
+
+        RefreshSortedApps();
+        RefreshCharts();
+    }
+
+    private void OnRecordPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(AppUsageRecord.Category) && sender is AppUsageRecord record)
+            _categoryService.SetUserCategory(record.ProcessName, record.Category);
+
+        if (e.PropertyName == nameof(AppUsageRecord.TotalUsageTime))
+            RefreshSortedApps();
+    }
+
+    /// <summary>Rebuilds <see cref="SortedAppUsages"/> ordered by total usage time descending.</summary>
+    public void RefreshSortedApps()
+    {
+        var sorted = Statistics.AppUsages
+            .OrderByDescending(a => a.TotalUsageTime)
+            .ToList();
+
+        SortedAppUsages = new ObservableCollection<AppUsageRecord>(sorted);
     }
 
     public void RefreshCharts()

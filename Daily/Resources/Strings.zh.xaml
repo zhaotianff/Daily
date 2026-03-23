@@ -12,6 +12,7 @@
     <sys:String x:Key="Nav_Dashboard">仪表盘</sys:String>
     <sys:String x:Key="Nav_Charts">图表</sys:String>
     <sys:String x:Key="Nav_History">历史记录</sys:String>
+    <sys:String x:Key="Nav_CategoryEditor">分类编辑器</sys:String>
 
     <!-- Notify icon / tray -->
     <sys:String x:Key="Menu_ShowHide">显示/隐藏</sys:String>
@@ -50,5 +51,20 @@
     <sys:String x:Key="Col_Category">类别</sys:String>
     <sys:String x:Key="Col_TotalTime">总时间</sys:String>
     <sys:String x:Key="Col_LastActive">最近活跃</sys:String>
+    <!-- Category Editor page -->
+    <sys:String x:Key="CategoryEditor_Title">分类编辑器</sys:String>
+    <sys:String x:Key="CategoryEditor_Subtitle">管理进程到类别的映射。用户自定义覆盖优先于内置预设。</sys:String>
+    <sys:String x:Key="CategoryEditor_Search">搜索进程或类别…</sys:String>
+    <sys:String x:Key="CategoryEditor_ProcessName">进程名（如 notepad）</sys:String>
+    <sys:String x:Key="CategoryEditor_Add">添加</sys:String>
+    <sys:String x:Key="CategoryEditor_MappingsTitle">所有映射</sys:String>
+    <sys:String x:Key="CategoryEditor_Delete">删除覆盖</sys:String>
+    <sys:String x:Key="CategoryEditor_DeleteTooltip">删除用户覆盖，恢复为内置类别</sys:String>
+    <sys:String x:Key="CategoryEditor_Source">来源</sys:String>
+    <sys:String x:Key="CategoryEditor_BuiltIn">内置</sys:String>
+    <sys:String x:Key="CategoryEditor_Custom">自定义</sys:String>
+    <sys:String x:Key="CategoryEditor_Saved">已保存。</sys:String>
+    <sys:String x:Key="CategoryEditor_Added">条目已添加。</sys:String>
+    <sys:String x:Key="CategoryEditor_Deleted">用户覆盖已删除。</sys:String>
 
 </ResourceDictionary>

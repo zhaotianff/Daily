@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -16,6 +17,7 @@ namespace Daily.ViewModels;
 public partial class HistoryViewModel : ObservableObject
 {
     private readonly StatisticsService _statisticsService;
+    private readonly ProgramCategoryService _categoryService;
 
     private const int MaxPieChartLabelLength = 20;
     private const int MaxBarChartLabelLength = 15;
@@ -24,6 +26,12 @@ public partial class HistoryViewModel : ObservableObject
     private string _currentTheme = "Dark";
 
     partial void OnCurrentThemeChanged(string value) => RefreshCurrentCharts();
+
+    /// <summary>All available category names, for binding to ComboBoxes.</summary>
+    public IReadOnlyList<string> CategoryList => ProgramCategoryService.AllCategories;
+
+    /// <summary>The currently-loaded day snapshot (used when saving category edits).</summary>
+    private DailySnapshot? _currentSnapshot;
 
     public void RefreshCurrentCharts()
     {
@@ -83,9 +91,10 @@ public partial class HistoryViewModel : ObservableObject
     [ObservableProperty]
     private bool _hasChartData;
 
-    public HistoryViewModel(StatisticsService statisticsService)
+    public HistoryViewModel(StatisticsService statisticsService, ProgramCategoryService categoryService)
     {
         _statisticsService = statisticsService;
+        _categoryService = categoryService;
         _selectedDayLabel = L.Get("History_SelectDayLabel", "Select a day to view details");
     }
 
@@ -116,6 +125,13 @@ public partial class HistoryViewModel : ObservableObject
 
     partial void OnSelectedDayChanged(DailySnapshot? value)
     {
+        // Unsubscribe from previous snapshot's app usages
+        if (_currentSnapshot?.AppUsages is not null)
+            foreach (var snap in _currentSnapshot.AppUsages)
+                snap.PropertyChanged -= OnAppSnapshotPropertyChanged;
+
+        _currentSnapshot = value;
+
         if (value is null)
         {
             SelectedDayApps = [];
@@ -138,8 +154,24 @@ public partial class HistoryViewModel : ObservableObject
             .OrderByDescending(a => a.TotalUsageSeconds)
             .ToList();
 
+        // Subscribe to category changes on each snapshot entry
+        foreach (var snap in value.AppUsages)
+            snap.PropertyChanged += OnAppSnapshotPropertyChanged;
+
         SelectedDayApps = new ObservableCollection<AppUsageSnapshot>(sorted);
         RefreshHistoryCharts(sorted);
+    }
+
+    private void OnAppSnapshotPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName != nameof(AppUsageSnapshot.Category)) return;
+        if (sender is not AppUsageSnapshot snap || _currentSnapshot is null) return;
+
+        // Save user override to category service
+        _categoryService.SetUserCategory(snap.ProcessName, snap.Category);
+
+        // Persist the updated snapshot to disk
+        _statisticsService.SaveHistorySnapshot(_currentSnapshot);
     }
 
     private void RefreshHistoryCharts(List<AppUsageSnapshot> apps)

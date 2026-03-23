@@ -17,6 +17,7 @@ public sealed class StatisticsService : IDisposable
     private readonly ForegroundWindowTracker _windowTracker = new();
     private readonly GlobalHookService _hookService = new();
     private readonly DataPersistenceService _persistence = new();
+    private readonly ProgramCategoryService _categoryService;
     private readonly DispatcherTimer _uiUpdateTimer;
     private readonly DispatcherTimer _autoSaveTimer;
     private readonly Dispatcher _dispatcher;
@@ -29,9 +30,10 @@ public sealed class StatisticsService : IDisposable
 
     public DailyStatistics Statistics { get; } = new();
 
-    public StatisticsService(Dispatcher dispatcher)
+    public StatisticsService(Dispatcher dispatcher, ProgramCategoryService categoryService)
     {
         _dispatcher = dispatcher;
+        _categoryService = categoryService;
 
         // Update UI every 2 seconds to reduce CPU usage from frequent UI redraws
         _uiUpdateTimer = new DispatcherTimer(DispatcherPriority.Background)
@@ -80,6 +82,12 @@ public sealed class StatisticsService : IDisposable
     /// </summary>
     public IReadOnlyList<DailySnapshot> LoadAllHistory() =>
         _persistence.LoadAllHistory();
+
+    /// <summary>
+    /// Saves a historical snapshot back to disk (e.g., after the user edits a category).
+    /// </summary>
+    public void SaveHistorySnapshot(DailySnapshot snapshot) =>
+        _persistence.SaveSnapshot(snapshot);
 
     private void OnAppChanged(string processName, string appName, string execPath)
     {
@@ -131,7 +139,7 @@ public sealed class StatisticsService : IDisposable
                 AppName = appName,
                 ExecutablePath = execPath,
                 LastActiveTime = DateTime.Now,
-                Category = ProgramCategoryService.GetCategory(processName, execPath),
+                Category = _categoryService.GetCategory(processName, execPath),
             };
             Statistics.AppUsages.Add(record);
         }

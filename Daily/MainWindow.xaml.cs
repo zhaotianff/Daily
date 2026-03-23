@@ -18,14 +18,20 @@ public partial class MainWindow : FluentWindow
     private readonly MainViewModel _mainViewModel;
     private readonly DashboardViewModel _dashboardViewModel;
     private readonly HistoryViewModel _historyViewModel;
+    private readonly CategoryEditorViewModel _categoryEditorViewModel;
     private NotifyIcon? _notifyIcon;
     private bool _isExiting;
 
-    public MainWindow(MainViewModel mainViewModel, DashboardViewModel dashboardViewModel, HistoryViewModel historyViewModel)
+    public MainWindow(
+        MainViewModel mainViewModel,
+        DashboardViewModel dashboardViewModel,
+        HistoryViewModel historyViewModel,
+        CategoryEditorViewModel categoryEditorViewModel)
     {
         _mainViewModel = mainViewModel;
         _dashboardViewModel = dashboardViewModel;
         _historyViewModel = historyViewModel;
+        _categoryEditorViewModel = categoryEditorViewModel;
 
         InitializeComponent();
         DataContext = mainViewModel;
@@ -34,7 +40,7 @@ public partial class MainWindow : FluentWindow
         ApplicationThemeManager.Apply(ApplicationTheme.Dark, WindowBackdropType.Mica);
 
         // Set page service so NavigationView can create pages with dependencies
-        RootNavigation.SetServiceProvider(BuildServiceProvider(dashboardViewModel, historyViewModel));
+        RootNavigation.SetServiceProvider(BuildServiceProvider(dashboardViewModel, historyViewModel, categoryEditorViewModel));
 
         // Navigate to dashboard on startup
         Loaded += OnLoaded;
@@ -43,14 +49,19 @@ public partial class MainWindow : FluentWindow
         InitializeNotifyIcon();
     }
 
-    private static IServiceProvider BuildServiceProvider(DashboardViewModel dashboardViewModel, HistoryViewModel historyViewModel)
+    private static IServiceProvider BuildServiceProvider(
+        DashboardViewModel dashboardViewModel,
+        HistoryViewModel historyViewModel,
+        CategoryEditorViewModel categoryEditorViewModel)
     {
         var services = new ServiceCollection();
         services.AddSingleton(dashboardViewModel);
         services.AddSingleton(historyViewModel);
+        services.AddSingleton(categoryEditorViewModel);
         services.AddTransient<DashboardPage>();
         services.AddTransient<ChartsPage>();
         services.AddTransient<HistoryPage>();
+        services.AddTransient<CategoryEditorPage>();
         return services.BuildServiceProvider();
     }
 
