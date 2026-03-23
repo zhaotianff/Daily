@@ -12,6 +12,7 @@
     <sys:String x:Key="Nav_Dashboard">Dashboard</sys:String>
     <sys:String x:Key="Nav_Charts">Charts</sys:String>
     <sys:String x:Key="Nav_History">History</sys:String>
+    <sys:String x:Key="Nav_CategoryEditor">Category Editor</sys:String>
 
     <!-- Notify icon / tray -->
     <sys:String x:Key="Menu_ShowHide">Show / Hide</sys:String>
@@ -50,5 +51,20 @@
     <sys:String x:Key="Col_Category">Category</sys:String>
     <sys:String x:Key="Col_TotalTime">Total Time</sys:String>
     <sys:String x:Key="Col_LastActive">Last Active</sys:String>
+    <!-- Category Editor page -->
+    <sys:String x:Key="CategoryEditor_Title">Category Editor</sys:String>
+    <sys:String x:Key="CategoryEditor_Subtitle">Manage process-to-category mappings. User overrides take priority over built-in presets.</sys:String>
+    <sys:String x:Key="CategoryEditor_Search">Search process or category…</sys:String>
+    <sys:String x:Key="CategoryEditor_ProcessName">Process name (e.g. notepad)</sys:String>
+    <sys:String x:Key="CategoryEditor_Add">Add</sys:String>
+    <sys:String x:Key="CategoryEditor_MappingsTitle">All Mappings</sys:String>
+    <sys:String x:Key="CategoryEditor_Delete">Delete Override</sys:String>
+    <sys:String x:Key="CategoryEditor_DeleteTooltip">Remove the user override and revert to the built-in category</sys:String>
+    <sys:String x:Key="CategoryEditor_Source">Source</sys:String>
+    <sys:String x:Key="CategoryEditor_BuiltIn">Built-in</sys:String>
+    <sys:String x:Key="CategoryEditor_Custom">Custom</sys:String>
+    <sys:String x:Key="CategoryEditor_Saved">Saved.</sys:String>
+    <sys:String x:Key="CategoryEditor_Added">Entry added.</sys:String>
+    <sys:String x:Key="CategoryEditor_Deleted">User override removed.</sys:String>
 
 </ResourceDictionary>

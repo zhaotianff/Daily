@@ -1,14 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text.Json;
+using Daily.Models;
 
 namespace Daily.Services;
 
 /// <summary>
 /// Provides category classification for known applications.
 /// Covers common Windows programs and popular Chinese software.
+/// User-defined overrides are persisted to %APPDATA%\Daily\categories.json.
 /// </summary>
-public static class ProgramCategoryService
+public class ProgramCategoryService
 {
     public const string CategoryWork = "Work";
     public const string CategoryBrowser = "Browser";
@@ -24,10 +28,25 @@ public static class ProgramCategoryService
     public const string CategorySecurity = "Security";
     public const string CategoryOther = "Other";
 
+    /// <summary>All available category names.</summary>
+    public static readonly IReadOnlyList<string> AllCategories =
+    [
+        CategoryWork, CategoryBrowser, CategorySocial, CategoryCommunication,
+        CategoryDevelopment, CategoryEntertainment, CategoryGaming, CategoryMedia,
+        CategoryUtility, CategoryEducation, CategoryFinance, CategorySecurity,
+        CategoryOther
+    ];
+
+    private static readonly string UserConfigFile = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "Daily", "categories.json");
+
+    private static readonly JsonSerializerOptions JsonOpts = new() { WriteIndented = true };
+
     /// <summary>
-    /// Maps lower-cased process names to their category.
+    /// Built-in preset mappings (process name → category).
     /// </summary>
-    private static readonly Dictionary<string, string> _categoryMap = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, string> BuiltinMap = new(StringComparer.OrdinalIgnoreCase)
     {
         // ── Work / Office ────────────────────────────────────────────────
         { "winword",            CategoryWork },
@@ -270,25 +289,94 @@ public static class ProgramCategoryService
         { "moneymanager",       CategoryFinance },
     };
 
+    /// <summary>User-defined overrides, loaded from disk and merged on top of the built-in map.</summary>
+    private Dictionary<string, string> _userMap = new(StringComparer.OrdinalIgnoreCase);
+
+    public ProgramCategoryService()
+    {
+        LoadUserOverrides();
+    }
+
     /// <summary>
     /// Returns the category for a given process name, or <see cref="CategoryOther"/> when unknown.
+    /// User overrides take priority over built-in presets.
     /// </summary>
-    public static string GetCategory(string processName, string executablePath = "")
+    public string GetCategory(string processName, string executablePath = "")
     {
         if (string.IsNullOrEmpty(processName))
             return CategoryOther;
 
-        if (_categoryMap.TryGetValue(processName, out var cat))
-            return cat;
+        if (_userMap.TryGetValue(processName, out var cat)) return cat;
+        if (BuiltinMap.TryGetValue(processName, out cat)) return cat;
 
         // Fallback: check if executable path contains any known keyword
         if (!string.IsNullOrEmpty(executablePath))
         {
             var fileName = Path.GetFileNameWithoutExtension(executablePath);
-            if (!string.IsNullOrEmpty(fileName) && _categoryMap.TryGetValue(fileName, out cat))
-                return cat;
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                if (_userMap.TryGetValue(fileName, out cat)) return cat;
+                if (BuiltinMap.TryGetValue(fileName, out cat)) return cat;
+            }
         }
 
         return CategoryOther;
+    }
+
+    /// <summary>
+    /// Persists a user-defined category override for a process name.
+    /// </summary>
+    public void SetUserCategory(string processName, string category)
+    {
+        if (string.IsNullOrEmpty(processName)) return;
+        _userMap[processName] = category;
+        SaveUserOverrides();
+    }
+
+    /// <summary>
+    /// Removes a user-defined override, reverting to the built-in category.
+    /// </summary>
+    public void RemoveUserCategory(string processName)
+    {
+        if (_userMap.Remove(processName))
+            SaveUserOverrides();
+    }
+
+    /// <summary>
+    /// Returns all mappings (built-in presets merged with user overrides).
+    /// User overrides are marked with <see cref="CategoryMappingEntry.IsUserOverride"/> = true.
+    /// </summary>
+    public IReadOnlyList<CategoryMappingEntry> GetAllMappings()
+    {
+        var result = new Dictionary<string, CategoryMappingEntry>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var kv in BuiltinMap)
+            result[kv.Key] = new CategoryMappingEntry(kv.Key, kv.Value, isUserOverride: false);
+
+        foreach (var kv in _userMap)
+            result[kv.Key] = new CategoryMappingEntry(kv.Key, kv.Value, isUserOverride: true);
+
+        return result.Values.OrderBy(e => e.ProcessName, StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private void LoadUserOverrides()
+    {
+        if (!File.Exists(UserConfigFile)) return;
+        try
+        {
+            var json = File.ReadAllText(UserConfigFile);
+            var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+            if (dict is not null)
+                _userMap = new Dictionary<string, string>(dict, StringComparer.OrdinalIgnoreCase);
+        }
+        catch { /* ignore corrupt file */ }
+    }
+
+    private void SaveUserOverrides()
+    {
+        var dir = Path.GetDirectoryName(UserConfigFile);
+        if (dir is not null)
+            Directory.CreateDirectory(dir);
+        File.WriteAllText(UserConfigFile, JsonSerializer.Serialize(_userMap, JsonOpts));
     }
 }

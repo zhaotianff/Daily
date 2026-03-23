@@ -14,6 +14,7 @@ namespace Daily;
 public partial class App : WpfApplication
 {
     private StatisticsService? _statisticsService;
+    private readonly ProgramCategoryService _categoryService = new();
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -29,12 +30,13 @@ public partial class App : WpfApplication
             Resources.MergedDictionaries.Add(zhDict);
         }
 
-        _statisticsService = new StatisticsService(Dispatcher);
-        var dashboardVm = new DashboardViewModel(_statisticsService);
+        _statisticsService = new StatisticsService(Dispatcher, _categoryService);
+        var dashboardVm = new DashboardViewModel(_statisticsService, _categoryService);
         var mainVm = new MainViewModel(_statisticsService);
-        var historyVm = new HistoryViewModel(_statisticsService);
+        var historyVm = new HistoryViewModel(_statisticsService, _categoryService);
+        var categoryEditorVm = new CategoryEditorViewModel(_categoryService);
 
-        var window = new MainWindow(mainVm, dashboardVm, historyVm);
+        var window = new MainWindow(mainVm, dashboardVm, historyVm, categoryEditorVm);
         MainWindow = window;
         window.Show();
 

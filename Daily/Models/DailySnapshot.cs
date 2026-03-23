@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Daily.Models;
 
@@ -16,15 +17,18 @@ public class DailySnapshot
 
 /// <summary>
 /// Serializable snapshot of a single app's usage within a day.
+/// Category is observable so the History page can track edits.
 /// </summary>
-public class AppUsageSnapshot
+public partial class AppUsageSnapshot : ObservableObject
 {
     public string ProcessName { get; set; } = string.Empty;
     public string AppName { get; set; } = string.Empty;
     public string ExecutablePath { get; set; } = string.Empty;
     public double TotalUsageSeconds { get; set; }
     public DateTime LastActiveTime { get; set; }
-    public string Category { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    private string _category = string.Empty;
 
     public string FormattedTime
     {

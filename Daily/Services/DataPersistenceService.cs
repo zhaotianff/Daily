@@ -123,7 +123,7 @@ public sealed class DataPersistenceService
         };
     }
 
-    private void SaveSnapshot(DailySnapshot snapshot)
+    public void SaveSnapshot(DailySnapshot snapshot)
     {
         var filePath = GetFilePath(snapshot.Date);
         var json = JsonSerializer.Serialize(snapshot, JsonOptions);
