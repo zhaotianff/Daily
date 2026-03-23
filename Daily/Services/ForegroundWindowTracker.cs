@@ -50,7 +50,7 @@ public sealed class ForegroundWindowTracker : IDisposable
         "dwm",                      // Desktop Window Manager
         "conhost",                  // Console Window Host
         "runtimebroker",            // Windows Runtime Broker
-        "applicationframehost",     // UWP app host
+        // applicationframehost is intentionally excluded so UWP apps can be resolved
         "systemsettings",           // Windows Settings
         "textinputhost",            // On-screen keyboard / Input Method
         "tabtip",                   // Touch Keyboard
@@ -136,12 +136,51 @@ public sealed class ForegroundWindowTracker : IDisposable
     [DllImport("psapi.dll")]
     private static extern uint GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, StringBuilder lpBaseName, uint nSize);
 
+    [DllImport("user32.dll")]
+    private static extern bool EnumChildWindows(IntPtr hwndParent, EnumChildProc lpEnumFunc, IntPtr lParam);
+
+    private delegate bool EnumChildProc(IntPtr hwnd, IntPtr lParam);
+
     private const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
 
     public void Start()
     {
         // Poll every 1000ms to keep CPU usage low
         _timer = new SystemTimer(OnTick, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+    }
+
+    /// <summary>
+    /// When the foreground window belongs to ApplicationFrameHost (UWP container),
+    /// enumerate child windows to find the real UWP app process.
+    /// </summary>
+    private (string ProcessName, string ExecPath) ResolveUwpApp(IntPtr frameHostHwnd, uint frameHostPid)
+    {
+        string processName = string.Empty;
+        string execPath = string.Empty;
+
+        bool EnumChild(IntPtr childHwnd, IntPtr _)
+        {
+            GetWindowThreadProcessId(childHwnd, out uint childPid);
+            if (childPid != 0 && childPid != frameHostPid)
+            {
+                try
+                {
+                    using var proc = Process.GetProcessById((int)childPid);
+                    if (!SystemProcesses.Contains(proc.ProcessName))
+                    {
+                        processName = proc.ProcessName;
+                        try { execPath = proc.MainModule?.FileName ?? string.Empty; }
+                        catch { /* Access denied for protected processes; path is optional */ }
+                        return false; // stop enumeration
+                    }
+                }
+                catch { /* Process may have exited between enumeration and GetProcessById */ }
+            }
+            return true; // continue enumeration
+        }
+
+        EnumChildWindows(frameHostHwnd, EnumChild, IntPtr.Zero);
+        return (processName, execPath);
     }
 
     private void OnTick(object? state)
@@ -185,6 +224,29 @@ public sealed class ForegroundWindowTracker : IDisposable
             catch
             {
                 return;
+            }
+
+            // Resolve UWP apps hosted inside ApplicationFrameHost
+            if (string.Equals(processName, "applicationframehost", StringComparison.OrdinalIgnoreCase))
+            {
+                var (uwpName, uwpPath) = ResolveUwpApp(hWnd, pid);
+                if (!string.IsNullOrEmpty(uwpName))
+                {
+                    processName = uwpName;
+                    execPath = uwpPath;
+                }
+                else
+                {
+                    // Could not identify the hosted UWP app; treat as idle
+                    if (_lastProcessName.Length > 0)
+                    {
+                        _lastProcessName = string.Empty;
+                        _lastAppName = string.Empty;
+                        _lastExecPath = string.Empty;
+                        AppChanged?.Invoke(string.Empty, string.Empty, string.Empty);
+                    }
+                    return;
+                }
             }
 
             // Ignore system processes and the Daily app itself

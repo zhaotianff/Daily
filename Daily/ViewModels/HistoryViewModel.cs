@@ -20,6 +20,20 @@ public partial class HistoryViewModel : ObservableObject
     private const int MaxPieChartLabelLength = 20;
     private const int MaxBarChartLabelLength = 15;
 
+    [ObservableProperty]
+    private string _currentTheme = "Dark";
+
+    partial void OnCurrentThemeChanged(string value) => RefreshCurrentCharts();
+
+    public void RefreshCurrentCharts()
+    {
+        if (SelectedDay is null) return;
+        var sorted = SelectedDay.AppUsages
+            .OrderByDescending(a => a.TotalUsageSeconds)
+            .ToList();
+        RefreshHistoryCharts(sorted);
+    }
+
     private static readonly SKColor[] Palette =
     [
         new(79, 141, 249),
@@ -182,7 +196,7 @@ public partial class HistoryViewModel : ObservableObject
             new Axis
             {
                 Name = L.Get("Chart_TotalTimeAxis", "Total Time"),
-                LabelsPaint = new SolidColorPaint(SKColors.Gray),
+                LabelsPaint = new SolidColorPaint(ChartThemeHelper.GetLabelColor(CurrentTheme)),
                 TextSize = 11,
                 Labeler = val =>
                 {
@@ -201,7 +215,7 @@ public partial class HistoryViewModel : ObservableObject
             {
                 Labels = labels,
                 TextSize = 11,
-                LabelsPaint = new SolidColorPaint(SKColors.Gray),
+                LabelsPaint = new SolidColorPaint(ChartThemeHelper.GetLabelColor(CurrentTheme)),
             }
         ];
     }
