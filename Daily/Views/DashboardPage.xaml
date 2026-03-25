@@ -17,6 +17,7 @@
                 Text="{DynamicResource Dashboard_Title}"
                 FontSize="28"
                 FontWeight="SemiBold"
+                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                 Margin="0,0,0,20" />
 
             <!-- Input Stats Cards -->
@@ -86,6 +87,7 @@
                         AutoGenerateColumns="False"
                         CanUserAddRows="False"
                         CanUserDeleteRows="False"
+                        CanUserSortColumns="False"
                         IsReadOnly="True"
                         SelectionMode="Single"
                         BorderThickness="0"

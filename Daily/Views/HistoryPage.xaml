@@ -25,6 +25,7 @@
                 Text="{DynamicResource History_Title}"
                 FontSize="28"
                 FontWeight="SemiBold"
+                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                 Margin="0,0,0,16" />
 
             <!-- Day selector -->
@@ -72,6 +73,7 @@
                             Margin="0,0,0,10" />
                         <lvc:PieChart
                             Height="260"
+                            Background="Transparent"
                             Series="{Binding HistoryPieSeries}"
                             LegendPosition="Bottom"
                             AnimationsSpeed="0:0:0.3"
@@ -89,6 +91,7 @@
                             Margin="0,0,0,10" />
                         <lvc:CartesianChart
                             Height="260"
+                            Background="Transparent"
                             Series="{Binding HistoryBarSeries}"
                             XAxes="{Binding HistoryBarXAxes}"
                             YAxes="{Binding HistoryBarYAxes}"
@@ -112,6 +115,7 @@
                         AutoGenerateColumns="False"
                         CanUserAddRows="False"
                         CanUserDeleteRows="False"
+                        CanUserSortColumns="False"
                         IsReadOnly="True"
                         SelectionMode="Single"
                         BorderThickness="0"
