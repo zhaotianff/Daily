@@ -25,6 +25,7 @@
                 Text="{DynamicResource CategoryEditor_Title}"
                 FontSize="28"
                 FontWeight="SemiBold"
+                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                 Margin="0,0,0,4" />
             <TextBlock
                 Grid.Row="1"

@@ -295,6 +295,12 @@ public class ProgramCategoryService
     /// <summary>User-defined overrides, loaded from disk and merged on top of the built-in map.</summary>
     private Dictionary<string, string> _userMap = new(StringComparer.OrdinalIgnoreCase);
 
+    /// <summary>
+    /// Raised whenever a user category override is set or updated.
+    /// Arguments: (processName, newCategory).
+    /// </summary>
+    public event Action<string, string>? UserCategoryUpdated;
+
     public ProgramCategoryService()
     {
         LoadUserOverrides();
@@ -328,12 +334,15 @@ public class ProgramCategoryService
 
     /// <summary>
     /// Persists a user-defined category override for a process name.
+    /// Raises <see cref="UserCategoryUpdated"/> only when the stored value actually changes.
     /// </summary>
     public void SetUserCategory(string processName, string category)
     {
         if (string.IsNullOrEmpty(processName)) return;
+        if (_userMap.TryGetValue(processName, out var existing) && StringComparer.OrdinalIgnoreCase.Equals(existing, category)) return;
         _userMap[processName] = category;
         SaveUserOverrides();
+        UserCategoryUpdated?.Invoke(processName, category);
     }
 
     /// <summary>

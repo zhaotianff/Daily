@@ -17,6 +17,7 @@
                 Text="{DynamicResource Charts_Title}"
                 FontSize="28"
                 FontWeight="SemiBold"
+                Foreground="{DynamicResource TextFillColorPrimaryBrush}"
                 Margin="0,0,0,4" />
             <TextBlock
                 Text="{DynamicResource Charts_Subtitle}"
@@ -42,6 +43,7 @@
                         Margin="0,0,0,12" />
                     <lvc:PieChart
                         Height="360"
+                        Background="Transparent"
                         Series="{Binding PieSeries}"
                         LegendPosition="Right"
                         AnimationsSpeed="0:0:0.4"
@@ -67,6 +69,7 @@
                         Margin="0,0,0,12" />
                     <lvc:CartesianChart
                         Height="340"
+                        Background="Transparent"
                         Series="{Binding BarSeries}"
                         XAxes="{Binding BarXAxes}"
                         YAxes="{Binding BarYAxes}"

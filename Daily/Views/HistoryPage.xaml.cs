@@ -15,5 +15,9 @@ public partial class HistoryPage : Page
 
         // Refresh the history list whenever the page is shown
         Loaded += (_, _) => viewModel.Refresh();
+
+        // Clear chart series when navigating away to prevent rendering issues
+        // with LiveCharts controls being removed from the visual tree
+        Unloaded += (_, _) => viewModel.ClearHistoryCharts();
     }
 }

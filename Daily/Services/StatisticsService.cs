@@ -52,6 +52,9 @@ public sealed class StatisticsService : IDisposable
 
         _windowTracker.AppChanged += OnAppChanged;
 
+        // Update existing records when the user changes a category mapping
+        _categoryService.UserCategoryUpdated += OnUserCategoryUpdated;
+
         // Load persisted data for today on startup
         _persistence.LoadToday(Statistics);
 
@@ -89,6 +92,18 @@ public sealed class StatisticsService : IDisposable
     /// </summary>
     public void SaveHistorySnapshot(DailySnapshot snapshot) =>
         _persistence.SaveSnapshot(snapshot);
+
+    private void OnUserCategoryUpdated(string processName, string category)
+    {
+        _dispatcher.BeginInvoke(() =>
+        {
+            foreach (var record in Statistics.AppUsages)
+            {
+                if (string.Equals(record.ProcessName, processName, StringComparison.OrdinalIgnoreCase))
+                    record.Category = category;
+            }
+        });
+    }
 
     private void OnAppChanged(string processName, string appName, string execPath)
     {
@@ -195,6 +210,7 @@ public sealed class StatisticsService : IDisposable
     {
         if (_disposed) return;
         _disposed = true;
+        _categoryService.UserCategoryUpdated -= OnUserCategoryUpdated;
         Stop();
         _windowTracker.Dispose();
         _hookService.Dispose();

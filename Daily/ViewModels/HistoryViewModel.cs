@@ -33,6 +33,18 @@ public partial class HistoryViewModel : ObservableObject
     /// <summary>The currently-loaded day snapshot (used when saving category edits).</summary>
     private DailySnapshot? _currentSnapshot;
 
+    /// <summary>
+    /// Clears all history chart series and axes to stop LiveCharts rendering
+    /// when the History page is removed from the visual tree.
+    /// </summary>
+    public void ClearHistoryCharts()
+    {
+        HistoryPieSeries = [];
+        HistoryBarSeries = [];
+        HistoryBarXAxes = [];
+        HistoryBarYAxes = [];
+    }
+
     public void RefreshCurrentCharts()
     {
         if (SelectedDay is null) return;
